@@ -36,7 +36,7 @@ from sklearn.tree import DecisionTreeClassifier
 
 tree_params = {
     "criterion": ["gini", "entropy"],
-    "max_depth": [5, 10],
+    "max_depth": [3, 7],
     "min_samples_leaf": [1, 5, 20],
 }
 
@@ -74,3 +74,42 @@ plt.show()
 ####### B 작업자 작업 수행 #######
 
 ''' 코드 작성 바랍니다 '''
+
+from xgboost import XGBClassifier
+
+xgb_params = {
+    "max_depth": [3, 6, 9],
+    "n_estimators": [100, 300],
+    "learning_rate": [0.1, 0.05],
+}
+
+xgb_search = GridSearchCV(
+    estimator=XGBClassifier(random_state=42),
+    param_grid=xgb_params,
+    scoring="f1",
+    cv=5,
+)
+
+xgb_search.fit(X_train, y_train)
+xgb_model = xgb_search.best_estimator_
+
+xgb_pred = xgb_model.predict(X_test)
+xgb_f1 = f1_score(y_test, xgb_pred)
+xgb_accuracy = accuracy_score(y_test, xgb_pred)
+
+print("XGBoost 최적 파라미터:", xgb_search.best_params_)
+print(f"XGBoost 교차검증 F1: {xgb_search.best_score_:.4f}")
+print(f"XGBoost 테스트 F1: {xgb_f1:.4f}")
+print(f"XGBoost 테스트 Accuracy: {xgb_accuracy:.4f}")
+
+xgb_importance = pd.Series(
+    xgb_model.feature_importances_,
+    index=X_train.columns,
+)
+xgb_top10 = xgb_importance.nlargest(10).sort_values()
+
+ax = xgb_top10.plot.barh(figsize=(9, 5))
+ax.set_title("XGBoost Feature Importance (Top 10)")
+ax.set_xlabel("Feature importance")
+plt.tight_layout()
+plt.show()
