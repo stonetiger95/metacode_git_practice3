@@ -36,7 +36,7 @@ from sklearn.tree import DecisionTreeClassifier
 
 tree_params = {
     "criterion": ["gini", "entropy"],
-    "max_depth": [5, 10],
+    "max_depth": [5, 10, 15],
     "min_samples_leaf": [1, 5, 20],
 }
 
